@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Georgia', 'Times New Roman', serif;
+}
+
+/* gentle gull-themed touches */
+::selection {
+  background: #fcd34d;
+  color: #0c4a6e;
+}
