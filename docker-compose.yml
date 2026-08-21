@@ -23,11 +23,11 @@ services:
       NODE_ENV: production
       PORT: 3000
 
-    # Published on all interfaces so other homelab machines can reach it
-    # directly (no host reverse proxy in this setup). If one is added later,
-    # bind to localhost instead: 127.0.0.1:${PORT}:3000
+    # Host nginx terminates TLS and proxies here; never exposed directly.
+    # See deploy/nginx/gullsgarba.ge.conf. Other homelab machines reach the app
+    # through nginx too: pihole answers gullsgarba.ge with this box's LAN IP.
     ports:
-      - ${PORT}:3000
+      - 127.0.0.1:${PORT}:3000
 
     networks:
       - gullsgabage-network

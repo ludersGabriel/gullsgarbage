@@ -45,8 +45,9 @@ cp .env.example .env   # PORT=3077 by default
 docker compose up -d --build
 ```
 
-The app is published on `http://<host>:3077` (host port from `${PORT}` in
-`.env`; the container itself listens on 3000). Day-to-day:
+The app is published on `127.0.0.1:3077` (host port from `${PORT}` in `.env`;
+the container itself listens on 3000) — localhost-only, because host nginx
+terminates TLS and proxies to it. Day-to-day:
 
 ```bash
 docker compose restart          # restart
@@ -59,9 +60,57 @@ migrate services, which this app does not need):
 
 - `Dockerfile` — multi-stage: `base` (bun install), `builder` (`bun run build`),
   `runner` (`.output/` only, `CMD bun .output/server/index.mjs`)
-- `docker-compose.yml` — the app service: restart policy, LAN port mapping,
-  named network
-- `.env.example` → `.env` — `PORT` (host port), `COMPOSE_PROJECT_NAME`
+- `docker-compose.yml` — the app service: restart policy, localhost port
+  mapping, named network
+- `.env.example` → `.env` — `PORT` (host port), `COMPOSE_PROJECT_NAME`,
+  `PUBLIC_URL`
+- `deploy/nginx/gullsgarba.ge.conf` + `install-site.sh` — the reverse proxy
+  (below)
+
+## nginx + TLS
+
+Public URL: **https://gullsgarba.ge**. The site config is version-controlled at
+`deploy/nginx/gullsgarba.ge.conf` and symlinked into
+`/etc/nginx/sites-available/` (and `sites-enabled/`) by
+`deploy/nginx/install-site.sh`, so edits land in git rather than on the box:
+
+```bash
+sudo bash deploy/nginx/install-site.sh              # symlink + nginx -t + reload
+sudo certbot --nginx -d gullsgarba.ge -d www.gullsgarba.ge
+```
+
+Certificates come from certbot (`certbot.timer` handles renewal). certbot
+rewrites the repo file in place, adding the `listen 443` / `ssl_certificate`
+lines marked `# managed by Certbot` — those are committed, so expect the conf to
+go dirty after issuance and stash it before a `git pull`.
+
+`www` 301s to the apex: one canonical origin keeps the serverFn CSRF
+same-origin check in `src/start.ts` unambiguous.
+
+The `map $http_upgrade $connection_upgrade` block is **not** declared here —
+nginx dies on a duplicate `map`, and astora-links' `astora.dev.br.conf` already
+declares it once for every site on the box.
+
+## Note: pihole
+
+pihole is the LAN's DNS server and holds a split-horizon record for each app:
+`gullsgarba.ge` and `www.gullsgarba.ge` answer with the box's LAN IP
+(`192.168.88.107`) instead of the public one, so LAN clients hit nginx directly
+rather than hairpinning through the router. Same real certificate either way.
+
+Records live in `dns.hosts` in `/home/lurdo/pihole/etc-pihole/pihole.toml`, set
+via a **whole-array replacement** — read the current value first or you will
+wipe the other apps' entries:
+
+```bash
+docker exec pihole pihole-FTL --config dns.hosts               # read
+docker exec pihole pihole-FTL --config dns.hosts '["..."]'     # replace all
+dig +short gullsgarba.ge @192.168.88.107                       # verify
+```
+
+`etc-pihole/hosts/custom.list` is regenerated from `pihole.toml` — never edit it
+directly. pihole's admin UI is on `http://<box>:8080/admin`; it was moved off
+80/443 so nginx could bind them.
 
 ## Notes
 
