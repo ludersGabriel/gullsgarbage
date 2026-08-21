@@ -5,7 +5,7 @@ export const Route = createFileRoute('/')({
   // SSR mode per route: full server rendering.
   ssr: true,
   head: () => ({
-    meta: [{ title: 'gullsgabage — quack' }],
+    meta: [{ title: 'gullsgabage — coming soon' }],
   }),
   component: HomePage,
 })
@@ -18,10 +18,7 @@ function HomePage() {
         alt="gullblock"
         className="h-48 w-auto drop-shadow-md [image-rendering:pixelated]"
       />
-      <p className="mt-10 rounded-full border border-sky-900/20 bg-white/60 px-6 py-2 text-xs font-bold tracking-[0.35em] text-sky-900/70 uppercase backdrop-blur">
-        coming soon
-      </p>
-      <p className="font-display mt-4 text-5xl font-black tracking-tight italic">quack</p>
+      <p className="shine-text mt-6 text-3xl font-black tracking-[0.2em] uppercase">coming soon</p>
     </main>
   )
 }

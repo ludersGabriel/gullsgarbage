@@ -9,3 +9,32 @@
   background: #fcd34d;
   color: #0c4a6e;
 }
+
+/**
+ * Shine sweep: near-black text with a soft light band sweeping left → right.
+ * The gradient is periodic (0% == 100%), so the loop is seamless.
+ */
+.shine-text {
+  background: linear-gradient(100deg, #0f172a 35%, #ffffff 50%, #0f172a 65%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine-sweep 2.5s linear infinite;
+}
+
+@keyframes shine-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shine-text {
+    animation: none;
+    background-position: 0 0;
+  }
+}
