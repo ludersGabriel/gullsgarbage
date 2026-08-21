@@ -9,6 +9,10 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  build: {
+    // Keep gullblock.png as a real asset file instead of a base64 data URL.
+    assetsInlineLimit: 0,
+  },
   plugins: [
     tsConfigPaths({ projects: ['./tsconfig.json'] }),
     // MUST come before react()

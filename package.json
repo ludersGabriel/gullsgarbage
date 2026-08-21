@@ -7,7 +7,7 @@
     "build": "vite build",
     "start": "bun run .output/server/index.mjs",
     "typecheck": "tsc --noEmit",
-    "check": "eslint . --fix && prettier --write .",
+    "check": "eslint . --fix && prettier --write . && tsc --noEmit",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -23,8 +23,7 @@
     "@tanstack/react-router": "^1.170.31",
     "@tanstack/react-start": "^1.168.48",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "zod": "^4.4.3"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
