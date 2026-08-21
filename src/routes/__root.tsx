@@ -1,4 +1,4 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
 import { Gull, Waves } from '~/components/Gull'
 import '../styles.css'
 
@@ -56,6 +56,12 @@ function NotFoundPage() {
       <p className="mt-4 max-w-md text-sky-900/70">
         the shore is a single page. head back to hello gulls.
       </p>
+      <Link
+        to="/"
+        className="mt-8 inline-flex items-center gap-2 rounded-full bg-sky-900 px-6 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-sky-900/20 transition hover:bg-sky-800 hover:shadow-sky-900/30 focus-visible:ring-2 focus-visible:ring-sky-900 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-100 focus-visible:outline-none active:scale-95"
+      >
+        ← back to shore
+      </Link>
       <Waves className="absolute right-0 bottom-0 left-0" />
     </main>
   )

@@ -1,0 +1,11 @@
+node_modules
+.git
+.env
+.env.*
+!.env.example
+.output
+dist
+.tanstack
+.husky
+*.log
+.DS_Store

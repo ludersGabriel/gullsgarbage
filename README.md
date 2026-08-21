@@ -36,6 +36,33 @@ The Vite config wires the server through **Nitro with the `bun` preset**
 (entry: `.output/server/index.mjs`, static assets in `.output/public/`),
 started with `bun run start`.
 
+## Deploy: Docker (homelab)
+
+Single-service compose deploy — no DB, no S3, no auth, just the app:
+
+```bash
+cp .env.example .env   # PORT=3077 by default
+docker compose up -d --build
+```
+
+The app is published on `http://<host>:3077` (host port from `${PORT}` in
+`.env`; the container itself listens on 3000). Day-to-day:
+
+```bash
+docker compose restart          # restart
+docker compose up -d --build    # rebuild + update
+docker compose down             # teardown
+```
+
+Files, modeled after the ld-clinica deployment (minus its Postgres/MinIO/
+migrate services, which this app does not need):
+
+- `Dockerfile` — multi-stage: `base` (bun install), `builder` (`bun run build`),
+  `runner` (`.output/` only, `CMD bun .output/server/index.mjs`)
+- `docker-compose.yml` — the app service: restart policy, LAN port mapping,
+  named network
+- `.env.example` → `.env` — `PORT` (host port), `COMPOSE_PROJECT_NAME`
+
 ## Notes
 
 - **File-based routes** — `src/routes/__root.tsx` (full document shell:

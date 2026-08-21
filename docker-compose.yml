@@ -1,0 +1,39 @@
+# Homelab deployment — modeled after the ld-clinica prod overlay, minus
+# everything this app does not need (no Postgres, no MinIO, no migrate
+# service, no auth env vars). The whole deploy is this one file:
+#   docker compose up -d --build
+#
+# The app listens on 3000 inside the container (Nitro bun preset); only the
+# host port is configurable via ${PORT} in .env (default 3077).
+#
+# gullsgabage-* is the intentional domain name: services, networks and
+# containers keep these names — do not "fix" them to the repo name.
+
+services:
+  gullsgabage-app:
+    build:
+      context: .
+      target: runner
+
+    container_name: gullsgabage-app
+    hostname: gullsgabage-app
+    restart: always
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+    # Published on all interfaces so other homelab machines can reach it
+    # directly (no host reverse proxy in this setup). If one is added later,
+    # bind to localhost instead: 127.0.0.1:${PORT}:3000
+    ports:
+      - ${PORT}:3000
+
+    networks:
+      - gullsgabage-network
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+networks:
+  gullsgabage-network:
