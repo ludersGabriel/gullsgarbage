@@ -1,10 +1,26 @@
-import { useRef } from 'react'
+import { useEffect, useState } from 'react'
 
 export function GameEmbed({ src, title }: { src: string; title: string }) {
-  const ref = useRef<HTMLIFrameElement>(null)
+  const [expanded, setExpanded] = useState(false)
+
+  // Freeze page scroll behind the overlay while the player fills the viewport.
+  useEffect(() => {
+    if (!expanded) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [expanded])
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-sky-900/15 bg-slate-950 shadow-lg shadow-sky-900/10">
+    <div
+      className={
+        expanded
+          ? 'fixed inset-0 z-50 flex flex-col overflow-hidden bg-slate-950'
+          : 'overflow-hidden rounded-2xl border border-sky-900/15 bg-slate-950 shadow-lg shadow-sky-900/10'
+      }
+    >
       <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-slate-900 px-4 py-2.5">
         <p className="truncate text-xs font-semibold tracking-wide text-sky-100/70 uppercase">
           Play {title}
@@ -20,21 +36,22 @@ export function GameEmbed({ src, title }: { src: string; title: string }) {
           </a>
           <button
             type="button"
-            onClick={() => ref.current?.requestFullscreen?.()}
+            onClick={() => setExpanded((value) => !value)}
+            aria-expanded={expanded}
+            aria-label={expanded ? 'Exit fullscreen' : 'Enter fullscreen'}
             className="rounded-full bg-sky-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-sky-400"
           >
-            Fullscreen ⤢
+            {expanded ? 'Exit fullscreen ↕' : 'Fullscreen ⤢'}
           </button>
         </div>
       </div>
       <iframe
-        ref={ref}
         src={src}
         title={`Play ${title}`}
         allow="autoplay; fullscreen; gamepad; clipboard-write"
         allowFullScreen
         loading="lazy"
-        className="block aspect-video w-full"
+        className={expanded ? 'block h-full min-h-0 w-full flex-1' : 'block aspect-video w-full'}
       />
     </div>
   )
