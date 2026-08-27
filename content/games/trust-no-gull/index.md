@@ -1,11 +1,11 @@
 ---
 title: 'Trust no Gull'
 tagline: ''
-status: in-development
+status: playable
 # jam: GMTK 2025
 # releasedAt: 2025-08-20
 # updatedAt: 2025-08-20
-# cover: /media/games/trust-no-gull/cover.png
+cover: /media/games/trust-no-gull/cover.png
 # play:
 #   kind: embedded
 # links:
@@ -13,6 +13,8 @@ status: in-development
 #     url: https://your-name.itch.io/trust-no-gull
 # tags:
 #   - jam
+play:
+  kind: embedded
 ---
 
 Write a short pitch here — what is it, what did you build it with, and what is the hook?
