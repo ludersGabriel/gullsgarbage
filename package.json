@@ -7,7 +7,11 @@
     "build": "vite build",
     "start": "bun run .output/server/index.mjs",
     "typecheck": "tsc --noEmit",
-    "check": "eslint . --fix && prettier --write . && tsc --noEmit",
+    "check": "eslint . --fix && prettier --write . && tsc --noEmit && bun run check:content",
+    "check:content": "bun scripts/validate-content.ts",
+    "new:game": "bun scripts/new-game.ts",
+    "new:devlog": "bun scripts/new-devlog.ts",
+    "import:build": "bun scripts/import-build.ts",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -22,8 +26,16 @@
   "dependencies": {
     "@tanstack/react-router": "^1.170.31",
     "@tanstack/react-start": "^1.168.48",
+    "gray-matter": "^4.0.3",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

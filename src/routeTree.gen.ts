@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DevlogRouteImport } from './routes/devlog'
+import { Route as GamesIndexRouteImport } from './routes/games/index'
+import { Route as GamesSlugIndexRouteImport } from './routes/games/$slug/index'
+import { Route as GamesSlugDevlogIndexRouteImport } from './routes/games/$slug/devlog/index'
+import { Route as GamesSlugDevlogPostRouteImport } from './routes/games/$slug/devlog/$post'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevlogRoute = DevlogRouteImport.update({
+  id: '/devlog',
+  path: '/devlog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesIndexRoute = GamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesSlugIndexRoute = GamesSlugIndexRouteImport.update({
+  id: '/games/$slug/',
+  path: '/games/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesSlugDevlogIndexRoute = GamesSlugDevlogIndexRouteImport.update({
+  id: '/games/$slug/devlog/',
+  path: '/games/$slug/devlog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesSlugDevlogPostRoute = GamesSlugDevlogPostRouteImport.update({
+  id: '/games/$slug/devlog/$post',
+  path: '/games/$slug/devlog/$post',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/devlog': typeof DevlogRoute
+  '/games/': typeof GamesIndexRoute
+  '/games/$slug/': typeof GamesSlugIndexRoute
+  '/games/$slug/devlog/$post': typeof GamesSlugDevlogPostRoute
+  '/games/$slug/devlog/': typeof GamesSlugDevlogIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/devlog': typeof DevlogRoute
+  '/games': typeof GamesIndexRoute
+  '/games/$slug': typeof GamesSlugIndexRoute
+  '/games/$slug/devlog/$post': typeof GamesSlugDevlogPostRoute
+  '/games/$slug/devlog': typeof GamesSlugDevlogIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/devlog': typeof DevlogRoute
+  '/games/': typeof GamesIndexRoute
+  '/games/$slug/': typeof GamesSlugIndexRoute
+  '/games/$slug/devlog/$post': typeof GamesSlugDevlogPostRoute
+  '/games/$slug/devlog/': typeof GamesSlugDevlogIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/devlog'
+    | '/games/'
+    | '/games/$slug/'
+    | '/games/$slug/devlog/$post'
+    | '/games/$slug/devlog/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/devlog'
+    | '/games'
+    | '/games/$slug'
+    | '/games/$slug/devlog/$post'
+    | '/games/$slug/devlog'
+  id:
+    | '__root__'
+    | '/'
+    | '/devlog'
+    | '/games/'
+    | '/games/$slug/'
+    | '/games/$slug/devlog/$post'
+    | '/games/$slug/devlog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DevlogRoute: typeof DevlogRoute
+  GamesIndexRoute: typeof GamesIndexRoute
+  GamesSlugIndexRoute: typeof GamesSlugIndexRoute
+  GamesSlugDevlogPostRoute: typeof GamesSlugDevlogPostRoute
+  GamesSlugDevlogIndexRoute: typeof GamesSlugDevlogIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/devlog': {
+      id: '/devlog'
+      path: '/devlog'
+      fullPath: '/devlog'
+      preLoaderRoute: typeof DevlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games/'
+      preLoaderRoute: typeof GamesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/$slug/': {
+      id: '/games/$slug/'
+      path: '/games/$slug'
+      fullPath: '/games/$slug/'
+      preLoaderRoute: typeof GamesSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/$slug/devlog/': {
+      id: '/games/$slug/devlog/'
+      path: '/games/$slug/devlog'
+      fullPath: '/games/$slug/devlog/'
+      preLoaderRoute: typeof GamesSlugDevlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/$slug/devlog/$post': {
+      id: '/games/$slug/devlog/$post'
+      path: '/games/$slug/devlog/$post'
+      fullPath: '/games/$slug/devlog/$post'
+      preLoaderRoute: typeof GamesSlugDevlogPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DevlogRoute: DevlogRoute,
+  GamesIndexRoute: GamesIndexRoute,
+  GamesSlugIndexRoute: GamesSlugIndexRoute,
+  GamesSlugDevlogPostRoute: GamesSlugDevlogPostRoute,
+  GamesSlugDevlogIndexRoute: GamesSlugDevlogIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

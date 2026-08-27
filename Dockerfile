@@ -19,6 +19,8 @@ RUN bun run build
 FROM base AS runner
 WORKDIR /app
 COPY --from=builder /app/.output ./.output
+# Markdown content is read at request time (node:fs), so ship it alongside .output.
+COPY content ./content
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["bun", ".output/server/index.mjs"]

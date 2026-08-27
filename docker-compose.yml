@@ -34,6 +34,9 @@ services:
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      # Playable Unity WebGL builds live on the host and are served without a
+      # rebuild. Drop a build into ./public/play/<slug>/ and `docker compose restart`.
+      - ./public/play:/app/.output/public/play
 
 networks:
   gullsgabage-network:

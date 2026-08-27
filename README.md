@@ -1,7 +1,7 @@
 # gullsgabage
 
-A TanStack Start rookery. The homepage is a single placeholder:
-**gullblock** (pixel-art gull), **coming soon**, **quack**.
+A small site for publishing jam games: every game gets a page, a markdown
+devlog/build log, and an in-browser playable Unity WebGL build.
 
 ## Stack
 
@@ -10,6 +10,43 @@ A TanStack Start rookery. The homepage is a single placeholder:
 - **Nitro 3** — server bundling, **Bun preset** (deployment runtime)
 - **Tailwind CSS 4** (via `@tailwindcss/vite`)
 - **ESLint 10 + Prettier 3** (+ `prettier-plugin-tailwindcss`), husky + lint-staged
+
+## Publishing a game
+
+Content is plain files in git (no DB, no admin UI). A game is a directory:
+
+```
+content/games/<slug>/index.md                 # game page (frontmatter + markdown)
+content/games/<slug>/devlogs/<date>-<k>.md    # devlog / build-log posts
+public/media/games/<slug>/cover.png           # committed images (stable /media/ URLs)
+public/play/<slug>/                           # Unity WebGL build (gitignored)
+```
+
+Game frontmatter (`content/games/<slug>/index.md`): `title`, `tagline`,
+`status` (`draft | in-development | playable | released | archived`), `jam`,
+`releasedAt` / `updatedAt` (ISO dates), `cover` (`/media/...`), `play`
+(`{ kind: embedded }` or `{ kind: external, url }`), `links` (`label` + `url`),
+`tags`, then a markdown body. Devlog frontmatter: `title`, `build`, `summary`,
+`tags`; the date comes from the filename.
+
+Authoring commands:
+
+```bash
+bun run new:game <slug> "Title"           # scaffold a game + devlogs/ + media/
+bun run new:devlog <slug> "Title"         # scaffold a devlog post
+bun run import:build <path-to-build> <slug>  # copy+validate a Unity build, set play
+bun run check:content                     # validate every game + devlog
+```
+
+Playable builds live in `public/play/<slug>/` and are **kept out of git**. They
+are exported from Unity with **Decompression Fallback enabled** (or no
+compression) so the server can serve them without special `Content-Encoding`
+handling. In production the directory is a Docker bind mount (below), so
+publishing a new build is `import:build` + `docker compose restart` — no image
+rebuild.
+
+Routes: `/` (games grid), `/games`, `/games/<slug>`, `/games/<slug>/devlog`,
+`/games/<slug>/devlog/<post>`, `/devlog` (site-wide feed).
 
 ## Scripts
 
@@ -59,9 +96,10 @@ Files, modeled after the ld-clinica deployment (minus its Postgres/MinIO/
 migrate services, which this app does not need):
 
 - `Dockerfile` — multi-stage: `base` (bun install), `builder` (`bun run build`),
-  `runner` (`.output/` only, `CMD bun .output/server/index.mjs`)
+  `runner` (`.output/` + `content/`, `CMD bun .output/server/index.mjs`)
 - `docker-compose.yml` — the app service: restart policy, localhost port
-  mapping, named network
+  mapping, named network, plus a `./public/play:/app/.output/public/play`
+  bind mount so WebGL builds are served without rebuilding the image
 - `.env.example` → `.env` — `PORT` (host port), `COMPOSE_PROJECT_NAME`,
   `PUBLIC_URL`
 - `deploy/nginx/gullsgarba.ge.conf` + `install-site.sh` — the reverse proxy

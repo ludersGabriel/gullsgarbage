@@ -6,3 +6,6 @@ dist
 .DS_Store
 .env
 .env.local
+
+# Unity WebGL builds — kept out of git, served via a Docker bind mount in prod.
+public/play/
