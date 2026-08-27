@@ -41,9 +41,9 @@ bun run check:content                     # validate every game + devlog
 Playable builds live in `public/play/<slug>/` and are **kept out of git**. They
 are exported from Unity with **Decompression Fallback enabled** (or no
 compression) so the server can serve them without special `Content-Encoding`
-handling. In production the directory is a Docker bind mount (below), so
-publishing a new build is `import:build` + `docker compose restart` — no image
-rebuild.
+handling. Builds are baked into the Docker image at build time (Nitro serves
+public files from a build-time manifest), so publishing a new build is
+`import:build` + `docker compose up -d --build`.
 
 Routes: `/` (games grid), `/games`, `/games/<slug>`, `/games/<slug>/devlog`,
 `/games/<slug>/devlog/<post>`, `/devlog` (site-wide feed).
@@ -98,8 +98,8 @@ migrate services, which this app does not need):
 - `Dockerfile` — multi-stage: `base` (bun install), `builder` (`bun run build`),
   `runner` (`.output/` + `content/`, `CMD bun .output/server/index.mjs`)
 - `docker-compose.yml` — the app service: restart policy, localhost port
-  mapping, named network, plus a `./public/play:/app/.output/public/play`
-  bind mount so WebGL builds are served without rebuilding the image
+  mapping, named network (builds ship via the image, so no volumes beyond
+  `/etc/localtime`)
 - `.env.example` → `.env` — `PORT` (host port), `COMPOSE_PROJECT_NAME`,
   `PUBLIC_URL`
 - `deploy/nginx/gullsgarba.ge.conf` + `install-site.sh` — the reverse proxy

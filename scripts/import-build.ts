@@ -68,4 +68,4 @@ if (hasPlay) {
   console.log(`set play.kind: embedded in ${path.relative(process.cwd(), gamePath)}`)
 }
 
-console.log('done — restart the container (prod) to serve the new build; dev serves it immediately')
+console.log('done — run `docker compose up -d --build` to ship the build')

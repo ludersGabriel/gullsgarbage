@@ -9,4 +9,3 @@ dist
 .husky
 *.log
 .DS_Store
-public/play
