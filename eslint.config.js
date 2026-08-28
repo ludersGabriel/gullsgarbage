@@ -25,4 +25,11 @@ export default tseslint.config(
       ...reactHooks.configs.flat.recommended.rules,
     },
   },
+  {
+    // Browser-side script injected into Unity WebGL builds (not a Node module).
+    files: ['scripts/unity-loader-patch.js'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
 )

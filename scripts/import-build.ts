@@ -1,5 +1,6 @@
 import { access, cp, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { isSlug } from '../src/content/paths'
 
 const [srcArg, slug] = process.argv.slice(2)
@@ -14,6 +15,35 @@ if (!slug || !isSlug(slug)) {
   fail(
     'usage: bun scripts/import-build.ts <path-to-build> <slug>\n  slug must be kebab-case [a-z0-9-]+',
   )
+}
+
+// Unity WebGL builds auto-request browser fullscreen at startup, which
+// browsers deny without a user gesture — Unity treats the denial as fatal and
+// the game freezes (see scripts/unity-loader-patch.js). Browser fullscreen
+// also hijacks Escape, so the game could never use Esc as a command. Every
+// imported build gets a loader patch that replaces browser fullscreen with
+// CSS-only fake fullscreen (plus context-loss recovery). The marker comment
+// keeps the patch idempotent across imports.
+const UNITY_FIX_MARKER = 'gullsgabage:unity-fix'
+
+async function patchLoaderPage(indexHtmlPath: string): Promise<boolean> {
+  const raw = await readFile(indexHtmlPath, 'utf8')
+  if (raw.includes(UNITY_FIX_MARKER)) return false
+  const patchDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'unity-loader-patch.js')
+  const patchJs = await readFile(patchDir, 'utf8')
+  const patchHtml = `<!-- ${UNITY_FIX_MARKER} -->\n<script>\n${patchJs}\n</script>\n`
+  const headClose = raw.search(/<\/head>/i)
+  const bodyClose = raw.search(/<\/body>/i)
+  let patched: string
+  if (headClose !== -1) {
+    patched = raw.slice(0, headClose) + patchHtml + raw.slice(headClose)
+  } else if (bodyClose !== -1) {
+    patched = raw.slice(0, bodyClose) + patchHtml + raw.slice(bodyClose)
+  } else {
+    patched = patchHtml + raw
+  }
+  await writeFile(indexHtmlPath, patched, 'utf8')
+  return true
 }
 
 const src = path.resolve(srcArg)
@@ -35,6 +65,13 @@ const dest = path.join(process.cwd(), 'public', 'play', slug)
 await rm(dest, { recursive: true, force: true })
 await cp(src, dest, { recursive: true })
 console.log(`copied ${src} -> ${path.relative(process.cwd(), dest)}`)
+
+const destIndex = path.join(dest, 'index.html')
+if (await patchLoaderPage(destIndex)) {
+  console.log(`patched ${path.relative(process.cwd(), destIndex)} (${UNITY_FIX_MARKER})`)
+} else {
+  console.log(`index.html already carries ${UNITY_FIX_MARKER} — left as-is`)
+}
 
 // Mark the game as playable in-page, preserving the rest of the file byte-for-byte.
 const gamePath = path.join(process.cwd(), 'content', 'games', slug, 'index.md')

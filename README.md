@@ -45,6 +45,13 @@ handling. Builds are baked into the Docker image at build time (Nitro serves
 public files from a build-time manifest), so publishing a new build is
 `import:build` + `docker compose up -d --build`.
 
+`import:build` also injects `scripts/unity-loader-patch.js` into the build's
+`index.html` (marked `gullsgabage:unity-fix`): Unity's auto-requested browser
+fullscreen is denied without a user gesture (crashes the game in new tabs and
+after tab switches) and browser fullscreen hijacks Escape — so all fullscreen
+requests are rewritten to CSS-only fake fullscreen, keeping Esc free for game
+commands. Keep that file in sync when upgrading Unity or the WebGL template.
+
 Routes: `/` (games grid), `/games`, `/games/<slug>`, `/games/<slug>/devlog`,
 `/games/<slug>/devlog/<post>`, `/devlog` (site-wide feed).
 
