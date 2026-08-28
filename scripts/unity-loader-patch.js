@@ -44,6 +44,11 @@
     var fakeFullscreen = false
     var saved = null
 
+    // The hosting site provides its own fullscreen control above the game —
+    // remove the duplicate one from the Unity template footer.
+    var fullscreenButton = document.getElementById('unity-fullscreen-button')
+    if (fullscreenButton) fullscreenButton.style.display = 'none'
+
     function applyCssFullscreen() {
       if (saved || !container) return
       saved = {

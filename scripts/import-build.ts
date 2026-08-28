@@ -23,27 +23,31 @@ if (!slug || !isSlug(slug)) {
 // also hijacks Escape, so the game could never use Esc as a command. Every
 // imported build gets a loader patch that replaces browser fullscreen with
 // CSS-only fake fullscreen (plus context-loss recovery). The marker comment
-// keeps the patch idempotent across imports.
+// identifies the injected block; it is stripped and re-injected on every
+// import so the patch can be updated in one place.
 const UNITY_FIX_MARKER = 'gullsgabage:unity-fix'
 
 async function patchLoaderPage(indexHtmlPath: string): Promise<boolean> {
   const raw = await readFile(indexHtmlPath, 'utf8')
-  if (raw.includes(UNITY_FIX_MARKER)) return false
+  // Remove any previously injected patch block (any version) so updates to
+  // scripts/unity-loader-patch.js always land in imported builds.
+  const patchBlock = /<!-- gullsgabage:unity-fix[\s\S]*?<\/script>\s*/
+  const stripped = raw.replace(patchBlock, '')
   const patchDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'unity-loader-patch.js')
   const patchJs = await readFile(patchDir, 'utf8')
   const patchHtml = `<!-- ${UNITY_FIX_MARKER} -->\n<script>\n${patchJs}\n</script>\n`
-  const headClose = raw.search(/<\/head>/i)
-  const bodyClose = raw.search(/<\/body>/i)
+  const headClose = stripped.search(/<\/head>/i)
+  const bodyClose = stripped.search(/<\/body>/i)
   let patched: string
   if (headClose !== -1) {
-    patched = raw.slice(0, headClose) + patchHtml + raw.slice(headClose)
+    patched = stripped.slice(0, headClose) + patchHtml + stripped.slice(headClose)
   } else if (bodyClose !== -1) {
-    patched = raw.slice(0, bodyClose) + patchHtml + raw.slice(bodyClose)
+    patched = stripped.slice(0, bodyClose) + patchHtml + stripped.slice(bodyClose)
   } else {
-    patched = patchHtml + raw
+    patched = patchHtml + stripped
   }
   await writeFile(indexHtmlPath, patched, 'utf8')
-  return true
+  return stripped !== raw
 }
 
 const src = path.resolve(srcArg)
@@ -67,11 +71,12 @@ await cp(src, dest, { recursive: true })
 console.log(`copied ${src} -> ${path.relative(process.cwd(), dest)}`)
 
 const destIndex = path.join(dest, 'index.html')
-if (await patchLoaderPage(destIndex)) {
-  console.log(`patched ${path.relative(process.cwd(), destIndex)} (${UNITY_FIX_MARKER})`)
-} else {
-  console.log(`index.html already carries ${UNITY_FIX_MARKER} — left as-is`)
-}
+const hadOldPatch = await patchLoaderPage(destIndex)
+console.log(
+  hadOldPatch
+    ? `replaced previous ${UNITY_FIX_MARKER} block in ${path.relative(process.cwd(), destIndex)}`
+    : `patched ${path.relative(process.cwd(), destIndex)} (${UNITY_FIX_MARKER})`,
+)
 
 // Mark the game as playable in-page, preserving the rest of the file byte-for-byte.
 const gamePath = path.join(process.cwd(), 'content', 'games', slug, 'index.md')
