@@ -1,10 +1,9 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
-import { Gull, Waves } from '~/components/Gull'
-import { SiteHeader } from '~/components/SiteHeader'
+import { Gull } from '~/components/Gull'
 import '../styles.css'
 
 const GULL_FAVICON =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 64'%3E%3Cpath fill='%230c4a6e' d='M60 42 Q30 10 8 14 Q26 26 44 34 Q44 42 60 46 Q76 42 76 34 Q94 26 112 14 Q90 10 60 42 Z'/%3E%3C/svg%3E"
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 64'%3E%3Cpath fill='%23ffffff' d='M60 42 Q30 10 8 14 Q26 26 44 34 Q44 42 60 46 Q76 42 76 34 Q94 26 112 14 Q90 10 60 42 Z'/%3E%3C/svg%3E"
 
 /**
  * Root route — renders the FULL document: <html>, <head> (via HeadContent)
@@ -16,11 +15,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'gullsgabage — tiny jam games' },
-      {
-        name: 'description',
-        content: 'Tiny jam games and the build logs behind them.',
-      },
+      { title: 'gullsgabage — coming soon' },
     ],
     links: [{ rel: 'icon', href: GULL_FAVICON }],
   }),
@@ -35,11 +30,8 @@ function RootComponent() {
       <head>
         <HeadContent />
       </head>
-      <body className="flex min-h-screen flex-col bg-sky-50 text-sky-950 antialiased">
-        <SiteHeader />
-        <div className="flex-1">
-          <Outlet />
-        </div>
+      <body className="min-h-screen bg-black text-white antialiased">
+        <Outlet />
         <Scripts />
       </body>
     </html>
@@ -48,24 +40,17 @@ function RootComponent() {
 
 function NotFoundPage() {
   return (
-    <main className="relative flex min-h-[70vh] flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-sky-300 via-sky-100 to-amber-100 px-6 text-center text-sky-950">
-      <Gull className="h-12 w-28 -rotate-6 text-sky-900/40" />
-      <p className="mt-6 rounded-full border border-sky-900/20 bg-white/60 px-5 py-1.5 text-[11px] font-bold tracking-[0.3em] text-sky-900/70 uppercase backdrop-blur">
+    <main className="flex h-screen flex-col items-center justify-center bg-black px-6 text-center">
+      <Gull className="h-10 w-24 -rotate-6 text-white/40" />
+      <p className="mt-6 text-[11px] font-bold tracking-[0.3em] text-white/50 uppercase">
         404 · nothing but gulls here
-      </p>
-      <h1 className="font-display mt-6 text-6xl font-black tracking-tight italic">
-        this page flew away
-      </h1>
-      <p className="mt-4 max-w-md text-sky-900/70">
-        no game, devlog, or shore under this wing. head back and try again.
       </p>
       <Link
         to="/"
-        className="mt-8 inline-flex items-center gap-2 rounded-full bg-sky-900 px-6 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-sky-900/20 transition hover:bg-sky-800 hover:shadow-sky-900/30 focus-visible:ring-2 focus-visible:ring-sky-900 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-100 focus-visible:outline-none active:scale-95"
+        className="mt-8 rounded-full border border-white/25 px-6 py-2.5 text-sm font-bold tracking-wide text-white transition hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
       >
         ← back to shore
       </Link>
-      <Waves className="absolute right-0 bottom-0 left-0" />
     </main>
   )
 }
